@@ -31,8 +31,9 @@ class MahasiswaController extends Controller
     {
         $request->validate([
             'nama' => 'required',
-            'nim' => 'required|unique:mahasiswas',
+            'nim' => 'required|unique:mahasiswas,nim',
             'prodi' => 'required',
+            'angkatan' => 'required|integer',
         ]);
         Mahasiswa::create($request->all());
         return redirect()->route('mahasiswa.index')
@@ -59,12 +60,18 @@ class MahasiswaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         $mhs = Mahasiswa::findOrFail($id);
+        $request->validate([
+            'nama' => 'required',
+            // unique ignore current id
+            'nim' => 'required|unique:mahasiswas,nim,' . $mhs->id,
+            'prodi' => 'required',
+            'angkatan' => 'required|integer',
+        ]);
         $mhs->update($request->all());
-        return redirect()->route('mahasiswa.index')
-            ->with('success', 'Data berhasil diperbarui');
+        return redirect()->route('mahasiswa.index')->with('success', 'Data berhasil diperbarui');
     }
 
     /**
